@@ -1,0 +1,10 @@
+{
+  "agents": [
+    ".claude/agents/public-ax-lead-manager.md",
+    ".claude/agents/ai-infra-lead-manager.md"
+  ],
+  "skills": [
+    ".claude/skills/lead-pipeline-tracker/SKILL.md",
+    ".claude/skills/csp-competitive-analyzer/SKILL.md"
+  ]
+}

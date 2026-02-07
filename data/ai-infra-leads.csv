@@ -1,0 +1,5 @@
+lead_id,category,client,type,stage,current_csp,expected_revenue,probability,next_action,due_date,owner,notes
+INF-001,AI인프라,스마일게이트,신규,접촉,없음,100000,25,GPU 클라우드 PoC 제안,2025-08-01,김차장,게임 AI 학습용 H100 수요
+INF-002,AI인프라,특허정보원,신규,제안,없음,40000,40,기술 제안서 제출,2025-07-25,김차장,특허 AI 검색 시스템 구축
+INF-003,AI인프라,삼성생명,윈백-NCP,협상,NCP,70000,50,PoC 결과 보고 및 가격 협상,2025-07-10,김차장,NCP 계약 만료 2025.09
+INF-004,AI인프라,버블챗,윈백-AWS,접촉,AWS,30000,20,비용 비교 자료 전달,2025-07-25,김차장,월 AWS 비용 약 2000만원

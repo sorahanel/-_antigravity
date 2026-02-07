@@ -1,0 +1,5 @@
+lead_id,category,client,type,stage,current_csp,expected_revenue,probability,next_action,due_date,owner,notes
+PUB-001,공공AX,2026 AI행정혁신,신규,발굴,없음,80000,20,과제 공고 상세 분석,2025-08-15,김차장,행안부 주관 예상
+PUB-002,공공AX,2026 공공데이터AI,신규,발굴,없음,50000,15,사전 시장조사 참여,2025-09-01,김차장,과기부 주관
+PUB-003,공공AX,2026 디지털치안,신규,접촉,없음,120000,30,경찰청 담당자 미팅,2025-07-20,김차장,AI CCTV 분석 포함
+PUB-004,공공AX,2026 스마트헬스케어,신규,발굴,Azure,60000,10,복지부 RFI 모니터링,2025-10-01,김차장,기존 Azure 사용 중
