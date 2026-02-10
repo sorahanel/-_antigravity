@@ -1,19 +1,59 @@
 /* ========================================
    kt cloud AI Foundry - Agent A Prototype
-   Real LLM Integration (Solar Pro2 / Solar Open 100B)
+   Multi-LLM: AI Foundry (Solar Pro2/100B) + OpenRouter (Solar Pro 3)
    ======================================== */
 
 // ========================================
-// API Configuration
+// API Configuration - Multi Provider
 // ========================================
 
-const API_CONFIG = {
-  endpoint: 'https://4fen9wjhzvtx.proxy.aifoundry.ktcloud.com/v1/chat/completions',
-  token: 'kt_31yma5uqbv1d7ahgnni5dbeumzspgkt5rljha895wx9yug77rop8igbb3xqcl08tb',
-  models: {
-    'solar-pro2': 'solar-pro2',
-    'solar-100b': 'solar-pro2',
-    'auto': 'solar-pro2'
+const PROVIDERS = {
+  'kt-foundry': {
+    name: 'kt cloud AI Foundry',
+    endpoint: 'https://4fen9wjhzvtx.proxy.aifoundry.ktcloud.com/v1/chat/completions',
+    token: 'kt_31yma5uqbv1d7ahgnni5dbeumzspgkt5rljha895wx9yug77rop8igbb3xqcl08tb',
+    headers: (token) => ({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    })
+  },
+  'openrouter': {
+    name: 'OpenRouter',
+    endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+    token: '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',
+    headers: (token) => ({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'HTTP-Referer': window.location.origin,
+      'X-Title': 'Agent A - AI Foundry Prototype'
+    })
+  }
+};
+
+const MODEL_CONFIG = {
+  'solar-pro2': {
+    provider: 'kt-foundry',
+    modelId: 'solar-pro2',
+    displayName: 'Solar Pro2',
+    desc: 'kt cloud AI Foundry'
+  },
+  'solar-100b': {
+    provider: 'kt-foundry',
+    modelId: 'solar-pro2',
+    displayName: 'Solar Open 100B',
+    desc: 'kt cloud AI Foundry'
+  },
+  'solar-pro3': {
+    provider: 'openrouter',
+    modelId: 'upstage/solar-pro-3',
+    displayName: 'Solar Pro 3',
+    desc: 'OpenRouter (102B MoE)'
+  },
+  'auto': {
+    provider: 'openrouter',
+    modelId: 'upstage/solar-pro-3',
+    displayName: 'Solar Pro 3',
+    desc: 'Auto - Best Available'
   }
 };
 
@@ -24,7 +64,7 @@ const SYSTEM_PROMPT = `당신은 "Agent A"입니다. 기관 A(공공기관)의 A
 - 이름: Agent A
 - 소속: 기관 A (공공기관)
 - 역할: AI 업무 비서 (의정활동 지원 전문)
-- 기반 기술: kt cloud AI Foundry, Solar Pro2 / Solar Open 100B 모델, RAG Suite
+- 기반 기술: kt cloud AI Foundry + OpenRouter, Solar Pro 3 / Solar Pro2 / Solar Open 100B 모델, RAG Suite
 
 ## 주요 업무 역할
 1. 회의록 분석 및 요약: 본회의/상임위 회의록 분석, 핵심 안건 요약, 의원 발언 정리
@@ -95,20 +135,23 @@ const suggestionsEl = document.getElementById('chatSuggestions');
 const modelSelect = document.getElementById('modelSelect');
 
 // ========================================
-// LLM API Call
+// LLM API Call - Multi Provider
 // ========================================
 
-async function callLLM(messages, model) {
-  const modelId = API_CONFIG.models[model] || 'solar-pro2';
+function getProviderConfig(modelKey) {
+  const config = MODEL_CONFIG[modelKey] || MODEL_CONFIG['auto'];
+  const provider = PROVIDERS[config.provider];
+  return { ...config, ...provider, providerKey: config.provider };
+}
 
-  const response = await fetch(API_CONFIG.endpoint, {
+async function callLLM(messages, modelKey) {
+  const cfg = getProviderConfig(modelKey);
+
+  const response = await fetch(cfg.endpoint, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${API_CONFIG.token}`
-    },
+    headers: cfg.headers(cfg.token),
     body: JSON.stringify({
-      model: modelId,
+      model: cfg.modelId,
       messages: messages,
       max_tokens: 2048,
       temperature: 0.7,
@@ -117,24 +160,22 @@ async function callLLM(messages, model) {
   });
 
   if (!response.ok) {
-    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    const body = await response.text().catch(() => '');
+    throw new Error(`[${cfg.name}] ${response.status} ${response.statusText} ${body}`);
   }
 
   const data = await response.json();
   return data.choices[0].message.content;
 }
 
-async function callLLMStreaming(messages, model, onChunk) {
-  const modelId = API_CONFIG.models[model] || 'solar-pro2';
+async function callLLMStreaming(messages, modelKey, onChunk) {
+  const cfg = getProviderConfig(modelKey);
 
-  const response = await fetch(API_CONFIG.endpoint, {
+  const response = await fetch(cfg.endpoint, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${API_CONFIG.token}`
-    },
+    headers: cfg.headers(cfg.token),
     body: JSON.stringify({
-      model: modelId,
+      model: cfg.modelId,
       messages: messages,
       max_tokens: 2048,
       temperature: 0.7,
@@ -144,7 +185,8 @@ async function callLLMStreaming(messages, model, onChunk) {
   });
 
   if (!response.ok) {
-    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    const body = await response.text().catch(() => '');
+    throw new Error(`[${cfg.name}] ${response.status} ${response.statusText} ${body}`);
   }
 
   const reader = response.body.getReader();
@@ -188,14 +230,17 @@ async function callLLMStreaming(messages, model, onChunk) {
 // ========================================
 
 function getModelName() {
-  const value = modelSelect.value;
-  if (value === 'solar-pro2') return 'Solar Pro2';
-  if (value === 'solar-100b') return 'Solar Open 100B';
-  return 'Auto';
+  const cfg = MODEL_CONFIG[modelSelect.value];
+  return cfg ? cfg.displayName : 'Auto';
 }
 
 function getModelKey() {
   return modelSelect.value;
+}
+
+function getProviderLabel() {
+  const cfg = getProviderConfig(modelSelect.value);
+  return cfg.providerKey === 'openrouter' ? 'OpenRouter' : 'AI Foundry';
 }
 
 function getCurrentTime() {
@@ -315,7 +360,8 @@ async function sendMessage(query) {
   conversationHistory.push({ role: 'user', content: query });
 
   const selectedModel = getModelKey();
-  const modelDisplayName = getModelName() === 'Auto' ? 'Solar Pro2' : getModelName();
+  const cfg = getProviderConfig(selectedModel);
+  const modelDisplayName = `${cfg.displayName} (${cfg.providerKey === 'openrouter' ? 'OpenRouter' : 'AI Foundry'})`;
   const time = getCurrentTime();
 
   // Create streaming message placeholder
@@ -374,10 +420,11 @@ async function sendMessage(query) {
           <span class="rag-doc-title">${escapeHTML(err.message)}</span>
         </div>
       </div>
-      AI Foundry 엔드포인트 연결에 실패했습니다. 네트워크 상태를 확인하거나 잠시 후 다시 시도해 주세요.<br><br>
+      LLM 엔드포인트 연결에 실패했습니다. 네트워크 상태를 확인하거나 잠시 후 다시 시도해 주세요.<br><br>
       <strong>연결 정보</strong><br>
-      &nbsp;&nbsp;&#8226; 엔드포인트: ${API_CONFIG.endpoint}<br>
-      &nbsp;&nbsp;&#8226; 모델: ${modelDisplayName}
+      &nbsp;&nbsp;&#8226; Provider: ${cfg.name}<br>
+      &nbsp;&nbsp;&#8226; 모델: ${cfg.displayName} (${cfg.modelId})<br>
+      &nbsp;&nbsp;&#8226; 엔드포인트: ${cfg.endpoint}
     `;
     chatMessages.innerHTML += createMessageHTML('bot', errorHTML, 'System', time);
 

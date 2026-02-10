@@ -41,12 +41,12 @@
       </div>
       <div class="hero-stats">
         <div class="stat">
-          <span class="stat-number">Solar Pro2</span>
-          <span class="stat-label">한국어 최적화 LLM</span>
+          <span class="stat-number">Solar Pro 3</span>
+          <span class="stat-label">102B MoE 최신 모델</span>
         </div>
         <div class="stat">
-          <span class="stat-number">100B급</span>
-          <span class="stat-label">Solar Open 모델</span>
+          <span class="stat-number">Solar Pro2</span>
+          <span class="stat-label">한국어 최적화 LLM</span>
         </div>
         <div class="stat">
           <span class="stat-number">RAG Suite</span>
@@ -440,12 +440,12 @@
           <div class="usecase-icon">&#127963;</div>
           <div class="usecase-badge">Live Demo</div>
           <h3>기관 A - AI 업무 비서</h3>
-          <p>공공기관 의정활동 지원을 위한 AI 비서 시스템. Solar Pro2와 Solar Open 100B 모델을 활용하여 회의록 분석, 조례안 검토, 정책 자료 검색을 지원합니다.</p>
+          <p>공공기관 의정활동 지원을 위한 AI 비서 시스템. Solar Pro 3, Solar Pro2, Solar Open 100B 모델을 활용하여 회의록 분석, 조례안 검토, 정책 자료 검색을 지원합니다.</p>
           <div class="usecase-tech">
+            <span>Solar Pro 3</span>
             <span>Solar Pro2</span>
             <span>Solar Open 100B</span>
             <span>RAG Suite</span>
-            <span>Vector DB</span>
           </div>
           <a href="#agent" class="btn btn-primary">데모 체험하기</a>
         </div>
@@ -492,7 +492,7 @@
       <div class="section-header light">
         <span class="section-tag">Live Prototype</span>
         <h2>Agent A - AI 업무 비서 데모</h2>
-        <p>기관 A를 위한 AI 비서 프로토타입 | Solar Pro2 & Solar Open 100B 기반</p>
+        <p>기관 A를 위한 AI 비서 프로토타입 | Solar Pro 3 + Solar Pro2 + Solar Open 100B</p>
       </div>
 
       <div class="agent-demo">
@@ -518,13 +518,18 @@
           <div class="agent-models">
             <h4>사용 모델</h4>
             <div class="model-card">
+              <div class="model-name">Solar Pro 3</div>
+              <div class="model-desc">102B MoE | OpenRouter</div>
+              <div class="model-status active">Active</div>
+            </div>
+            <div class="model-card">
               <div class="model-name">Solar Pro2</div>
-              <div class="model-desc">일반 질의응답, 빠른 응답 처리</div>
+              <div class="model-desc">경량 응답 | AI Foundry</div>
               <div class="model-status active">Active</div>
             </div>
             <div class="model-card">
               <div class="model-name">Solar Open 100B</div>
-              <div class="model-desc">복잡 추론, 문서 심층 분석</div>
+              <div class="model-desc">심층 분석 | AI Foundry</div>
               <div class="model-status active">Active</div>
             </div>
           </div>
@@ -538,8 +543,9 @@
             <div class="setting-row">
               <span>모델 선택</span>
               <select id="modelSelect" class="model-select">
-                <option value="solar-pro2">Solar Pro2 (빠른 응답)</option>
-                <option value="solar-100b">Solar Open 100B (정밀 분석)</option>
+                <option value="solar-pro3">Solar Pro 3 (OpenRouter)</option>
+                <option value="solar-pro2">Solar Pro2 (AI Foundry)</option>
+                <option value="solar-100b">Solar Open 100B (AI Foundry)</option>
                 <option value="auto">자동 선택</option>
               </select>
             </div>
@@ -555,7 +561,10 @@
           <div class="agent-settings" style="margin-top:16px;">
             <h4>엔드포인트</h4>
             <div style="font-size:11px;color:rgba(255,255,255,0.4);word-break:break-all;line-height:1.5;">
-              proxy.aifoundry.ktcloud.com
+              <span style="color:rgba(255,255,255,0.6);">AI Foundry</span><br>
+              proxy.aifoundry.ktcloud.com<br><br>
+              <span style="color:rgba(255,255,255,0.6);">OpenRouter</span><br>
+              openrouter.ai/api/v1
             </div>
           </div>
         </div>
@@ -578,7 +587,7 @@
               <div class="message-content">
                 <div class="message-text">
                   안녕하세요! 저는 <strong>Agent A</strong>, 기관 A의 AI 업무 비서입니다.<br><br>
-                  kt cloud AI Foundry의 <strong>Solar Pro2</strong>와 <strong>Solar Open 100B</strong> 모델을 기반으로 다음과 같은 업무를 지원합니다:<br><br>
+                  <strong>Solar Pro 3</strong>(OpenRouter), <strong>Solar Pro2</strong> / <strong>Solar Open 100B</strong>(AI Foundry) 모델을 기반으로 다음과 같은 업무를 지원합니다:<br><br>
                   &#128196; 회의록 분석 및 요약<br>
                   &#128220; 조례안/법규 검토 및 비교<br>
                   &#128269; 정책 자료 검색<br>
@@ -586,7 +595,7 @@
                   무엇을 도와드릴까요?
                 </div>
                 <div class="message-meta">
-                  <span class="meta-model">Solar Pro2</span>
+                  <span class="meta-model">Solar Pro 3 (OpenRouter)</span>
                   <span class="meta-time">지금</span>
                 </div>
               </div>
@@ -610,7 +619,7 @@
               </button>
             </div>
             <div class="chat-disclaimer">
-              AI Foundry Live | proxy.aifoundry.ktcloud.com | Solar Pro2 & Solar Open 100B
+              Multi-LLM Live | AI Foundry (Solar Pro2/100B) + OpenRouter (Solar Pro 3)
             </div>
           </div>
         </div>
