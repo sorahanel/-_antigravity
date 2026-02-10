@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>kt cloud AI Foundry - 솔루션 개발 방법론 및 활용 가이드</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <div class="nav-logo">
+        <span class="logo-kt">kt cloud</span>
+        <span class="logo-divider">|</span>
+        <span class="logo-product">AI Foundry</span>
+      </div>
+      <div class="nav-links">
+        <a href="#methodology" class="nav-link">개발 방법론</a>
+        <a href="#roadmap" class="nav-link">서비스 로드맵</a>
+        <a href="#usecases" class="nav-link">활용 사례</a>
+        <a href="#agent" class="nav-link active">Agent A Demo</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge">AI Foundry Solution Guide 2026</div>
+      <h1>AI 솔루션 개발 방법론<br><span class="hero-accent">및 활용 가이드</span></h1>
+      <p class="hero-desc">
+        kt cloud AI Foundry를 활용한 엔터프라이즈 AI 솔루션 구축의 전 과정을<br>
+        체계적인 방법론과 실전 사례로 안내합니다.
+      </p>
+      <div class="hero-actions">
+        <a href="#agent" class="btn btn-primary">Agent A 데모 체험</a>
+        <a href="#methodology" class="btn btn-secondary">개발 방법론 보기</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <span class="stat-number">Solar Pro 3</span>
+          <span class="stat-label">102B MoE 최신 모델</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">Solar Pro2</span>
+          <span class="stat-label">한국어 최적화 LLM</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">RAG Suite</span>
+          <span class="stat-label">End-to-End 파이프라인</span>
+        </div>
+        <div class="stat">
+          <span class="stat-number">CSAP</span>
+          <span class="stat-label">공공 보안 인증</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Methodology Section -->
+  <section class="section" id="methodology">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Development Methodology</span>
+        <h2>AI Foundry 솔루션 개발 방법론</h2>
+        <p>AI Foundry 기반 솔루션 개발을 위한 5단계 체계적 방법론</p>
+      </div>
+
+      <!-- Phase Timeline -->
+      <div class="methodology-timeline">
+        <!-- Phase 1 -->
+        <div class="phase" data-phase="1">
+          <div class="phase-header">
+            <div class="phase-number">Phase 1</div>
+            <h3>요구사항 분석 및 설계</h3>
+          </div>
+          <div class="phase-content">
+            <div class="phase-desc">
+              고객의 비즈니스 요구사항을 분석하고 AI Foundry 서비스 구성을 설계합니다.
+            </div>
+            <ul class="phase-steps">
+              <li>
+                <strong>비즈니스 요구 정의</strong>
+                <span>고객 Pain Point 분석, KPI 설정, 성공 기준 정의</span>
+              </li>
+              <li>
+                <strong>AI 적용 범위 결정</strong>
+                <span>RAG / Fine-tuning / Agent 중 최적 접근법 선택</span>
+              </li>
+              <li>
+                <strong>모델 선정</strong>
+                <span>Solar Pro2(경량/빠른 응답) vs Solar Open 100B(복잡 추론) 선택</span>
+              </li>
+              <li>
+                <strong>아키텍처 설계</strong>
+                <span>AI Foundry 서비스 조합 및 데이터 흐름 설계</span>
+              </li>
+            </ul>
+            <div class="phase-tools">
+              <span class="tool-tag">RAG Suite</span>
+              <span class="tool-tag">Vector DB</span>
+              <span class="tool-tag">AI Train</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="phase" data-phase="2">
+          <div class="phase-header">
+            <div class="phase-number">Phase 2</div>
+            <h3>데이터 준비 및 파이프라인 구축</h3>
+          </div>
+          <div class="phase-content">
+            <div class="phase-desc">
+              RAG Suite를 활용하여 문서 처리, 임베딩, 벡터 저장 파이프라인을 구축합니다.
+            </div>
+            <ul class="phase-steps">
+              <li>
+                <strong>문서 수집 및 전처리</strong>
+                <span>PDF, DOCX 등 비정형 데이터를 RAG Suite Parser로 구조화</span>
+              </li>
+              <li>
+                <strong>임베딩 생성</strong>
+                <span>한국어 최적화 임베딩 모델로 문서 벡터화</span>
+              </li>
+              <li>
+                <strong>Vector DB 구성</strong>
+                <span>벡터 인덱스 생성, 검색 최적화 설정</span>
+              </li>
+              <li>
+                <strong>검색 파이프라인 테스트</strong>
+                <span>검색 품질 평가 및 파라미터 튜닝</span>
+              </li>
+            </ul>
+            <div class="phase-tools">
+              <span class="tool-tag highlight">RAG Suite Parser</span>
+              <span class="tool-tag highlight">Vector DB</span>
+              <span class="tool-tag">Elastic Search</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="phase" data-phase="3">
+          <div class="phase-header">
+            <div class="phase-number">Phase 3</div>
+            <h3>모델 선택 및 최적화</h3>
+          </div>
+          <div class="phase-content">
+            <div class="phase-desc">
+              용도에 맞는 LLM을 선택하고, 프롬프트 엔지니어링 및 파인튜닝으로 최적화합니다.
+            </div>
+            <ul class="phase-steps">
+              <li>
+                <strong>LLM 라인업 비교</strong>
+                <span>Solar Pro2 / Solar Mini / Qwen3 / Solar Open 100B 성능 비교</span>
+              </li>
+              <li>
+                <strong>프롬프트 엔지니어링</strong>
+                <span>도메인 특화 시스템 프롬프트 설계 및 Few-shot 구성</span>
+              </li>
+              <li>
+                <strong>모델 파인튜닝 (선택)</strong>
+                <span>AI Train으로 도메인 데이터 기반 모델 학습</span>
+              </li>
+              <li>
+                <strong>Guardrail 설정</strong>
+                <span>응답 필터링, 안전성 검증, 할루시네이션 방지</span>
+              </li>
+            </ul>
+            <div class="phase-tools">
+              <span class="tool-tag highlight">Solar Pro2</span>
+              <span class="tool-tag highlight">Solar Open 100B</span>
+              <span class="tool-tag">AI Train</span>
+              <span class="tool-tag">Guardrail</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 4 -->
+        <div class="phase" data-phase="4">
+          <div class="phase-header">
+            <div class="phase-number">Phase 4</div>
+            <h3>서비스 통합 및 배포</h3>
+          </div>
+          <div class="phase-content">
+            <div class="phase-desc">
+              AI Foundry API를 활용하여 서비스를 통합하고, 프로덕션 환경에 배포합니다.
+            </div>
+            <ul class="phase-steps">
+              <li>
+                <strong>API 통합</strong>
+                <span>RAG Suite API + LLM API 엔드포인트 연동</span>
+              </li>
+              <li>
+                <strong>Agent 구성</strong>
+                <span>BAI AI Agent로 자율 수행 에이전트 파이프라인 구축</span>
+              </li>
+              <li>
+                <strong>보안 설정</strong>
+                <span>API Key 관리, 전용망(VPC) 연동, CSAP 보안 기준 준수</span>
+              </li>
+              <li>
+                <strong>GPU Server 배포</strong>
+                <span>GPU Server IDE로 개발/테스트 환경 구성 후 프로덕션 배포</span>
+              </li>
+            </ul>
+            <div class="phase-tools">
+              <span class="tool-tag">BAI AI Agent</span>
+              <span class="tool-tag">GPU Server IDE</span>
+              <span class="tool-tag">FastTrack v2</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 5 -->
+        <div class="phase" data-phase="5">
+          <div class="phase-header">
+            <div class="phase-number">Phase 5</div>
+            <h3>운영 및 고도화</h3>
+          </div>
+          <div class="phase-content">
+            <div class="phase-desc">
+              서비스 모니터링, 모델 평가/양자화, 지속적 품질 개선을 수행합니다.
+            </div>
+            <ul class="phase-steps">
+              <li>
+                <strong>모니터링 및 로깅</strong>
+                <span>사용량 기반 모니터링, 응답 품질 대시보드</span>
+              </li>
+              <li>
+                <strong>모델 평가/양자화</strong>
+                <span>성능 최적화 및 비용 절감을 위한 모델 경량화</span>
+              </li>
+              <li>
+                <strong>RAG 품질 고도화</strong>
+                <span>검색 엔진 확장(Elastic Search), Rerank 모델 적용</span>
+              </li>
+              <li>
+                <strong>AI Studio 통합 (4Q)</strong>
+                <span>AI Nexus + AI Foundry 통합 All-in-One 개발 환경 전환</span>
+              </li>
+            </ul>
+            <div class="phase-tools">
+              <span class="tool-tag">모델 평가/양자화</span>
+              <span class="tool-tag">AI Studio</span>
+              <span class="tool-tag">Rerank</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Architecture Diagram -->
+      <div class="architecture">
+        <h3>AI Foundry 서비스 아키텍처</h3>
+        <div class="arch-diagram">
+          <div class="arch-layer">
+            <div class="arch-label">Application Layer</div>
+            <div class="arch-items">
+              <div class="arch-item app">AI Studio (통합 플랫폼)</div>
+            </div>
+          </div>
+          <div class="arch-arrow">&#8595;</div>
+          <div class="arch-layer">
+            <div class="arch-label">Service Layer - AI Foundry</div>
+            <div class="arch-items">
+              <div class="arch-item service">RAG Suite<br><small>문서처리 / 임베딩 / 검색 / LLM</small></div>
+              <div class="arch-item service">BAI AI Agent<br><small>자율 수행 에이전트</small></div>
+              <div class="arch-item service">FastTrack v2<br><small>파이프라인 템플릿</small></div>
+            </div>
+          </div>
+          <div class="arch-arrow">&#8595;</div>
+          <div class="arch-layer">
+            <div class="arch-label">Model Layer</div>
+            <div class="arch-items">
+              <div class="arch-item model">Solar Pro2<br><small>경량 / 한국어 최적화</small></div>
+              <div class="arch-item model">Solar Open 100B<br><small>대규모 추론</small></div>
+              <div class="arch-item model">Qwen3 / STT<br><small>멀티모달</small></div>
+              <div class="arch-item model">Rerank / Guardrail<br><small>품질 보장</small></div>
+            </div>
+          </div>
+          <div class="arch-arrow">&#8595;</div>
+          <div class="arch-layer">
+            <div class="arch-label">Data Layer</div>
+            <div class="arch-items">
+              <div class="arch-item data">Vector DB<br><small>벡터 검색 엔진</small></div>
+              <div class="arch-item data">Elastic Search<br><small>키워드 검색</small></div>
+              <div class="arch-item data">AI Train<br><small>모델 학습 데이터</small></div>
+            </div>
+          </div>
+          <div class="arch-arrow">&#8595;</div>
+          <div class="arch-layer">
+            <div class="arch-label">Infrastructure Layer - AI Nexus</div>
+            <div class="arch-items">
+              <div class="arch-item infra">GPU Cluster (H100/A100)<br><small>학습 / 추론 인프라</small></div>
+              <div class="arch-item infra">GPU Server IDE<br><small>개발 환경</small></div>
+              <div class="arch-item infra">MLOps Pipeline<br><small>모델 배포 자동화</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Roadmap Section -->
+  <section class="section section-dark" id="roadmap">
+    <div class="container">
+      <div class="section-header light">
+        <span class="section-tag">Service Roadmap 2026</span>
+        <h2>'26년 AI 서비스 출시 로드맵</h2>
+        <p>AI Nexus와 AI Foundry를 중심으로, AX Studio로의 진화</p>
+      </div>
+
+      <div class="roadmap">
+        <!-- Q1 -->
+        <div class="roadmap-quarter">
+          <div class="quarter-header">
+            <h3>'26년 1Q</h3>
+            <span class="quarter-subtitle">기반 확보 및 통합</span>
+          </div>
+          <div class="quarter-items">
+            <div class="roadmap-item new">
+              <div class="item-badge nexus">AI Nexus</div>
+              <h4>BAI 플랫폼 통합</h4>
+              <p>AI SERV + AI Train 단일 파이프라인</p>
+            </div>
+            <div class="roadmap-item update">
+              <div class="item-badge foundry">Update</div>
+              <h4>RAG Suite 기능 보완</h4>
+              <p>사용자 콘솔 UI/UX 개선<br>CSAP 부가서비스 신청 (천안)</p>
+            </div>
+            <div class="roadmap-item patch">
+              <div class="item-badge">Patch</div>
+              <h4>Vector DB / SDK</h4>
+              <p>콘솔 UI/UX 개선 및 버그 수정</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="roadmap-quarter">
+          <div class="quarter-header">
+            <h3>'26년 2Q</h3>
+            <span class="quarter-subtitle">공공 진입 & 모델 확장</span>
+            <span class="milestone">KEY MILESTONE</span>
+          </div>
+          <div class="quarter-items">
+            <div class="roadmap-item new">
+              <div class="item-badge cert">인증</div>
+              <h4>RAG Suite CSAP 획득</h4>
+              <p>4월 인증 마크 획득 예정<br>공공 고객 신뢰 확보</p>
+            </div>
+            <div class="roadmap-item new">
+              <div class="item-badge">Add-on</div>
+              <h4>GPU Server IDE</h4>
+              <p>개발 환경(VM) 제공, 전용 인스턴스</p>
+            </div>
+            <div class="roadmap-item new">
+              <div class="item-badge model-badge">Model</div>
+              <h4>LLM 모델 다양화</h4>
+              <p>100B급, STT, 멀티모달 확장<br>Enterprise 수요 대응</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="roadmap-quarter">
+          <div class="quarter-header">
+            <h3>'26년 3Q</h3>
+            <span class="quarter-subtitle">기능 고도화 & AX 준비</span>
+          </div>
+          <div class="quarter-items">
+            <div class="roadmap-item new">
+              <div class="item-badge beta">Beta</div>
+              <h4>BAI AI Agent</h4>
+              <p>AI Agent 기능 제공 (레퍼런스 기반)</p>
+            </div>
+            <div class="roadmap-item update">
+              <div class="item-badge db">DB</div>
+              <h4>Vector DB 엔진 확장</h4>
+              <p>Elastic Search 엔진 추가<br>검색 품질 고도화</p>
+            </div>
+            <div class="roadmap-item update">
+              <div class="item-badge">Upgrade</div>
+              <h4>FastTrack v2</h4>
+              <p>파이프라인 템플릿 제공</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="roadmap-quarter">
+          <div class="quarter-header">
+            <h3>'26년 4Q</h3>
+            <span class="quarter-subtitle">AX Studio 본격화</span>
+          </div>
+          <div class="quarter-items">
+            <div class="roadmap-item new">
+              <div class="item-badge platform">Platform</div>
+              <h4>AI Studio 통합</h4>
+              <p>AI Nexus + AI Foundry 통합<br>All-in-One AI 개발 환경</p>
+            </div>
+            <div class="roadmap-item update">
+              <div class="item-badge ops">Ops</div>
+              <h4>모델 평가/양자화</h4>
+              <p>3차 용역 완료 및 서비스 적용<br>모델 최적화 및 비용 절감</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Roadmap footer -->
+      <div class="roadmap-footer">
+        <div class="roadmap-track">
+          <div class="track-label nexus-track">AI Nexus (Infra & Ops)</div>
+          <div class="track-desc">GPU 인프라 중심의 MLOps 환경을 통합 플랫폼으로 고도화</div>
+        </div>
+        <div class="roadmap-track">
+          <div class="track-label foundry-track">AI Foundry (Gen AI Service)</div>
+          <div class="track-desc">RAG Suite CSAP 인증으로 공공 시장 선점, 100B급 모델 및 검색 엔진 확장</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Use Cases Section -->
+  <section class="section" id="usecases">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Use Cases</span>
+        <h2>AI Foundry 활용 사례</h2>
+        <p>실제 고객 적용 시나리오 기반 솔루션 가이드</p>
+      </div>
+
+      <div class="usecases-grid">
+        <div class="usecase-card featured">
+          <div class="usecase-icon">&#127963;</div>
+          <div class="usecase-badge">Live Demo</div>
+          <h3>기관 A - AI 업무 비서</h3>
+          <p>공공기관 의정활동 지원을 위한 AI 비서 시스템. Solar Pro 3, Solar Pro2, Solar Open 100B 모델을 활용하여 회의록 분석, 조례안 검토, 정책 자료 검색을 지원합니다.</p>
+          <div class="usecase-tech">
+            <span>Solar Pro 3</span>
+            <span>Solar Pro2</span>
+            <span>Solar Open 100B</span>
+            <span>RAG Suite</span>
+          </div>
+          <a href="#agent" class="btn btn-primary">데모 체험하기</a>
+        </div>
+
+        <div class="usecase-card">
+          <div class="usecase-icon">&#128202;</div>
+          <h3>금융기관 - 문서 분석 AI</h3>
+          <p>대량의 금융 보고서 및 규정 문서를 RAG Suite로 처리하여 실시간 질의응답과 리포트 자동 생성을 지원합니다.</p>
+          <div class="usecase-tech">
+            <span>RAG Suite</span>
+            <span>Solar Pro2</span>
+            <span>Guardrail</span>
+          </div>
+        </div>
+
+        <div class="usecase-card">
+          <div class="usecase-icon">&#127981;</div>
+          <h3>제조업 - 설비 지식 AI</h3>
+          <p>설비 매뉴얼과 점검 이력을 Vector DB에 저장하고, 현장 기술자가 자연어로 문제 해결 방법을 검색할 수 있는 시스템입니다.</p>
+          <div class="usecase-tech">
+            <span>Vector DB</span>
+            <span>Elastic Search</span>
+            <span>Solar Mini</span>
+          </div>
+        </div>
+
+        <div class="usecase-card">
+          <div class="usecase-icon">&#128187;</div>
+          <h3>IT 기업 - 코드 어시스턴트</h3>
+          <p>사내 코드베이스와 기술 문서를 학습한 AI Agent가 코드 리뷰, 버그 분석, 문서 작성을 자동으로 수행합니다.</p>
+          <div class="usecase-tech">
+            <span>BAI AI Agent</span>
+            <span>Solar Open 100B</span>
+            <span>AI Train</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Agent A Demo Section -->
+  <section class="section section-dark" id="agent">
+    <div class="container">
+      <div class="section-header light">
+        <span class="section-tag">Live Prototype</span>
+        <h2>Agent A - AI 업무 비서 데모</h2>
+        <p>기관 A를 위한 AI 비서 프로토타입 | Solar Pro 3 + Solar Pro2 + Solar Open 100B</p>
+      </div>
+
+      <div class="agent-demo">
+        <div class="agent-sidebar">
+          <div class="agent-info">
+            <div class="agent-avatar">A</div>
+            <h3>Agent A</h3>
+            <p>기관 A AI 업무 비서</p>
+          </div>
+
+          <div class="agent-capabilities">
+            <h4>주요 기능</h4>
+            <ul>
+              <li>&#128196; 회의록 분석 및 요약</li>
+              <li>&#128220; 조례안/법규 검토</li>
+              <li>&#128269; 정책 자료 검색</li>
+              <li>&#128200; 예산안 분석</li>
+              <li>&#128221; 보고서 초안 작성</li>
+              <li>&#129302; 업무 자동화 지원</li>
+            </ul>
+          </div>
+
+          <div class="agent-models">
+            <h4>사용 모델</h4>
+            <div class="model-card">
+              <div class="model-name">Solar Pro 3</div>
+              <div class="model-desc">102B MoE | OpenRouter</div>
+              <div class="model-status active">Active</div>
+            </div>
+            <div class="model-card">
+              <div class="model-name">Solar Pro2</div>
+              <div class="model-desc">경량 응답 | AI Foundry</div>
+              <div class="model-status active">Active</div>
+            </div>
+            <div class="model-card">
+              <div class="model-name">Solar Open 100B</div>
+              <div class="model-desc">심층 분석 | AI Foundry</div>
+              <div class="model-status active">Active</div>
+            </div>
+          </div>
+
+          <div class="agent-settings">
+            <h4>현재 설정</h4>
+            <div class="setting-row">
+              <span>LLM 연결</span>
+              <span class="setting-value on" id="apiStatus">LIVE</span>
+            </div>
+            <div class="setting-row">
+              <span>모델 선택</span>
+              <select id="modelSelect" class="model-select">
+                <option value="solar-pro3">Solar Pro 3 (OpenRouter)</option>
+                <option value="solar-pro2">Solar Pro2 (AI Foundry)</option>
+                <option value="solar-100b">Solar Open 100B (AI Foundry)</option>
+                <option value="auto">자동 선택</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <span>스트리밍</span>
+              <span class="setting-value on">ON</span>
+            </div>
+            <div class="setting-row">
+              <span>대화 기록</span>
+              <span class="setting-value on">ON</span>
+            </div>
+          </div>
+          <div class="agent-settings" style="margin-top:16px;">
+            <h4>엔드포인트</h4>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);word-break:break-all;line-height:1.5;">
+              <span style="color:rgba(255,255,255,0.6);">AI Foundry</span><br>
+              proxy.aifoundry.ktcloud.com<br><br>
+              <span style="color:rgba(255,255,255,0.6);">OpenRouter</span><br>
+              openrouter.ai/api/v1
+            </div>
+          </div>
+        </div>
+
+        <div class="agent-chat">
+          <div class="chat-header">
+            <div class="chat-title">
+              <span class="chat-dot"></span>
+              Agent A 대화
+            </div>
+            <div class="chat-controls">
+              <button class="chat-control" id="clearChat" title="대화 초기화">&#128260;</button>
+            </div>
+          </div>
+
+          <div class="chat-messages" id="chatMessages">
+            <!-- Welcome message -->
+            <div class="message bot">
+              <div class="message-avatar">A</div>
+              <div class="message-content">
+                <div class="message-text">
+                  안녕하세요! 저는 <strong>Agent A</strong>, 기관 A의 AI 업무 비서입니다.<br><br>
+                  <strong>Solar Pro 3</strong>(OpenRouter), <strong>Solar Pro2</strong> / <strong>Solar Open 100B</strong>(AI Foundry) 모델을 기반으로 다음과 같은 업무를 지원합니다:<br><br>
+                  &#128196; 회의록 분석 및 요약<br>
+                  &#128220; 조례안/법규 검토 및 비교<br>
+                  &#128269; 정책 자료 검색<br>
+                  &#128200; 예산안 분석<br><br>
+                  무엇을 도와드릴까요?
+                </div>
+                <div class="message-meta">
+                  <span class="meta-model">Solar Pro 3 (OpenRouter)</span>
+                  <span class="meta-time">지금</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-suggestions" id="chatSuggestions">
+            <button class="suggestion" data-query="최근 본회의 회의록을 요약해 주세요">&#128196; 회의록 요약</button>
+            <button class="suggestion" data-query="주민자치 관련 조례안 현황을 분석해 주세요">&#128220; 조례안 분석</button>
+            <button class="suggestion" data-query="2026년 교육 분야 예산안 변경사항을 알려주세요">&#128200; 예산안 분석</button>
+            <button class="suggestion" data-query="스마트도시 관련 타 시도 정책 사례를 검색해 주세요">&#128269; 정책 검색</button>
+          </div>
+
+          <div class="chat-input-area">
+            <div class="chat-input-wrapper">
+              <textarea id="chatInput" placeholder="질문을 입력하세요..." rows="1"></textarea>
+              <button id="sendBtn" class="send-btn" title="전송">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                </svg>
+              </button>
+            </div>
+            <div class="chat-disclaimer">
+              Multi-LLM Live | AI Foundry (Solar Pro2/100B) + OpenRouter (Solar Pro 3)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="logo-kt">kt cloud</span>
+          <span class="logo-divider">|</span>
+          <span class="logo-product">AI Foundry</span>
+        </div>
+        <div class="footer-info">
+          AI Foundry 솔루션 개발 방법론 및 활용 가이드 | 2026
+        </div>
+        <div class="footer-note">
+          본 페이지는 AI Foundry 프로토타입 시연을 위해 제작되었습니다.
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
