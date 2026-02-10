@@ -369,37 +369,68 @@ async function sendMessage(query) {
   chatMessages.innerHTML += streamHTML;
   scrollToBottom();
 
+  // Determine actual model to use - prefer Solar Pro 3 via OpenRouter
+  let actualModel = selectedModel;
+  let actualCfg = cfg;
+  let actualDisplayName = modelDisplayName;
+  let usedFallback = false;
+
   try {
-    // Try streaming first
     let finalContent = '';
     const textEl = document.getElementById(`${streamId}-text`);
 
-    try {
-      finalContent = await callLLMStreaming(
-        conversationHistory,
-        selectedModel,
-        (partialContent) => {
-          if (textEl) {
-            textEl.innerHTML = formatResponse(partialContent);
-            scrollToBottom();
+    // Helper: attempt streaming then non-streaming for a given model
+    async function tryModel(modelKey) {
+      const tryCfg = getProviderConfig(modelKey);
+      try {
+        return await callLLMStreaming(
+          conversationHistory,
+          modelKey,
+          (partialContent) => {
+            if (textEl) {
+              textEl.innerHTML = formatResponse(partialContent);
+              scrollToBottom();
+            }
           }
+        );
+      } catch (streamErr) {
+        console.log(`Streaming failed for ${tryCfg.displayName}, trying non-streaming:`, streamErr.message);
+        if (textEl) {
+          textEl.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
         }
-      );
-    } catch (streamErr) {
-      // If streaming fails, try non-streaming
-      console.log('Streaming failed, trying non-streaming:', streamErr.message);
-
-      if (textEl) {
-        textEl.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+        return await callLLM(conversationHistory, modelKey);
       }
+    }
 
-      finalContent = await callLLM(conversationHistory, selectedModel);
+    try {
+      finalContent = await tryModel(actualModel);
+    } catch (primaryErr) {
+      // If the selected model is NOT Solar Pro 3, fallback to it
+      if (actualModel !== 'solar-pro3' && actualModel !== 'auto') {
+        console.log(`${cfg.displayName} failed, falling back to Solar Pro 3:`, primaryErr.message);
+        if (textEl) {
+          textEl.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+        }
+        actualModel = 'solar-pro3';
+        actualCfg = getProviderConfig('solar-pro3');
+        actualDisplayName = `${actualCfg.displayName} (OpenRouter)`;
+        usedFallback = true;
+        finalContent = await tryModel('solar-pro3');
+      } else {
+        throw primaryErr;
+      }
+    }
+
+    // Build meta display
+    let metaLabel = actualDisplayName;
+    if (usedFallback) {
+      metaLabel += ' [fallback]';
     }
 
     // Update the message with final content and meta
     const streamMsg = document.getElementById(streamId);
     if (streamMsg) {
-      streamMsg.outerHTML = createMessageHTML('bot', formatResponse(finalContent), modelDisplayName, time);
+      streamMsg.outerHTML = createMessageHTML('bot', formatResponse(finalContent), metaLabel, time);
     }
 
     // Add assistant response to conversation history
@@ -412,7 +443,6 @@ async function sendMessage(query) {
     const streamMsg = document.getElementById(streamId);
     if (streamMsg) streamMsg.remove();
 
-    // Show error with retry option
     const errorHTML = `
       <div class="rag-results" style="border-color: rgba(233,69,96,0.3); background: rgba(233,69,96,0.08);">
         <div class="rag-label" style="color: var(--kt-accent);">API 연결 오류</div>
@@ -420,11 +450,10 @@ async function sendMessage(query) {
           <span class="rag-doc-title">${escapeHTML(err.message)}</span>
         </div>
       </div>
-      LLM 엔드포인트 연결에 실패했습니다. 네트워크 상태를 확인하거나 잠시 후 다시 시도해 주세요.<br><br>
-      <strong>연결 정보</strong><br>
-      &nbsp;&nbsp;&#8226; Provider: ${cfg.name}<br>
-      &nbsp;&nbsp;&#8226; 모델: ${cfg.displayName} (${cfg.modelId})<br>
-      &nbsp;&nbsp;&#8226; 엔드포인트: ${cfg.endpoint}
+      모든 LLM 엔드포인트 연결에 실패했습니다. 네트워크 상태를 확인하거나 잠시 후 다시 시도해 주세요.<br><br>
+      <strong>시도한 연결</strong><br>
+      &nbsp;&nbsp;&#8226; Primary: ${cfg.displayName} (${cfg.modelId})<br>
+      &nbsp;&nbsp;&#8226; Fallback: Solar Pro 3 (upstage/solar-pro-3)
     `;
     chatMessages.innerHTML += createMessageHTML('bot', errorHTML, 'System', time);
 
@@ -482,7 +511,7 @@ clearBtn.addEventListener('click', () => {
           대화가 초기화되었습니다. 무엇을 도와드릴까요?
         </div>
         <div class="message-meta">
-          <span class="meta-model">Solar Pro2</span>
+          <span class="meta-model">Solar Pro 3 (OpenRouter)</span>
           <span class="meta-time">${getCurrentTime()}</span>
         </div>
       </div>
