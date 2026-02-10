@@ -45,13 +45,19 @@ const MODEL_CONFIG = {
   },
   'solar-pro3': {
     provider: 'openrouter',
-    modelId: 'upstage/solar-pro-3:free',
+    modelId: 'upstage/solar-pro-3',
     displayName: 'Solar Pro 3',
-    desc: 'OpenRouter (102B MoE, Free Tier)'
+    desc: 'OpenRouter (102B MoE)'
+  },
+  'solar-pro3-free': {
+    provider: 'openrouter',
+    modelId: 'upstage/solar-pro-3:free',
+    displayName: 'Solar Pro 3 (Free)',
+    desc: 'OpenRouter Free Tier'
   },
   'auto': {
     provider: 'openrouter',
-    modelId: 'upstage/solar-pro-3:free',
+    modelId: 'upstage/solar-pro-3',
     displayName: 'Solar Pro 3',
     desc: 'Auto - Best Available'
   }
@@ -444,23 +450,34 @@ async function sendMessage(query) {
       }
     }
 
+    // Fallback chain: selected → solar-pro3 (paid) → solar-pro3-free
+    const fallbackChain = ['solar-pro3', 'solar-pro3-free'];
     try {
       finalContent = await tryModel(actualModel);
     } catch (primaryErr) {
-      // If the selected model is NOT Solar Pro 3, fallback to it
-      if (actualModel !== 'solar-pro3' && actualModel !== 'auto') {
-        console.log(`${cfg.displayName} failed, falling back to Solar Pro 3:`, primaryErr.message);
-        if (textEl) {
-          textEl.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+      console.log(`${cfg.displayName} failed:`, primaryErr.message);
+      let resolved = false;
+
+      for (const fb of fallbackChain) {
+        if (fb === actualModel) continue; // skip if same as primary
+        try {
+          console.log(`Trying fallback: ${fb}`);
+          if (textEl) {
+            textEl.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
+          }
+          actualModel = fb;
+          actualCfg = getProviderConfig(fb);
+          actualDisplayName = `${actualCfg.displayName} (OpenRouter)`;
+          usedFallback = true;
+          finalContent = await tryModel(fb);
+          resolved = true;
+          break;
+        } catch (fbErr) {
+          console.log(`Fallback ${fb} also failed:`, fbErr.message);
         }
-        actualModel = 'solar-pro3';
-        actualCfg = getProviderConfig('solar-pro3');
-        actualDisplayName = `${actualCfg.displayName} (OpenRouter)`;
-        usedFallback = true;
-        finalContent = await tryModel('solar-pro3');
-      } else {
-        throw primaryErr;
       }
+
+      if (!resolved) throw primaryErr;
     }
 
     // Build meta display
