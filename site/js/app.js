@@ -45,13 +45,13 @@ const MODEL_CONFIG = {
   },
   'solar-pro3': {
     provider: 'openrouter',
-    modelId: 'upstage/solar-pro-3',
+    modelId: 'upstage/solar-pro-3:free',
     displayName: 'Solar Pro 3',
-    desc: 'OpenRouter (102B MoE)'
+    desc: 'OpenRouter (102B MoE, Free Tier)'
   },
   'auto': {
     provider: 'openrouter',
-    modelId: 'upstage/solar-pro-3',
+    modelId: 'upstage/solar-pro-3:free',
     displayName: 'Solar Pro 3',
     desc: 'Auto - Best Available'
   }
@@ -168,31 +168,39 @@ async function callLLM(messages, modelKey) {
   return data.choices[0].message.content;
 }
 
-async function callLLMStreaming(messages, modelKey, onChunk) {
+async function callLLMStreaming(messages, modelKey, onChunk, onUsage) {
   const cfg = getProviderConfig(modelKey);
+
+  const body = {
+    model: cfg.modelId,
+    messages: messages,
+    max_tokens: 2048,
+    temperature: 0.7,
+    top_p: 0.9,
+    stream: true
+  };
+
+  // OpenRouter: enable reasoning token tracking
+  if (cfg.providerKey === 'openrouter') {
+    body.include_reasoning = true;
+  }
 
   const response = await fetch(cfg.endpoint, {
     method: 'POST',
     headers: cfg.headers(cfg.token),
-    body: JSON.stringify({
-      model: cfg.modelId,
-      messages: messages,
-      max_tokens: 2048,
-      temperature: 0.7,
-      top_p: 0.9,
-      stream: true
-    })
+    body: JSON.stringify(body)
   });
 
   if (!response.ok) {
-    const body = await response.text().catch(() => '');
-    throw new Error(`[${cfg.name}] ${response.status} ${response.statusText} ${body}`);
+    const errBody = await response.text().catch(() => '');
+    throw new Error(`[${cfg.name}] ${response.status} ${response.statusText} ${errBody}`);
   }
 
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let fullContent = '';
   let buffer = '';
+  let usageInfo = null;
 
   while (true) {
     const { done, value } = await reader.read();
@@ -211,15 +219,32 @@ async function callLLMStreaming(messages, modelKey, onChunk) {
 
       try {
         const parsed = JSON.parse(data);
+
+        // Capture content delta (matches SDK: chunk.choices[0]?.delta?.content)
         const delta = parsed.choices?.[0]?.delta?.content;
         if (delta) {
           fullContent += delta;
           onChunk(fullContent);
         }
+
+        // Capture usage from final chunk (matches SDK: chunk.usage)
+        if (parsed.usage) {
+          usageInfo = {
+            promptTokens: parsed.usage.prompt_tokens || 0,
+            completionTokens: parsed.usage.completion_tokens || 0,
+            totalTokens: parsed.usage.total_tokens || 0,
+            reasoningTokens: parsed.usage.reasoning_tokens || parsed.usage.reasoningTokens || 0
+          };
+        }
       } catch (e) {
         // skip malformed chunks
       }
     }
+  }
+
+  // Report usage info if callback provided
+  if (usageInfo && onUsage) {
+    onUsage(usageInfo);
   }
 
   return fullContent;
@@ -283,8 +308,16 @@ function formatResponse(text) {
   return html;
 }
 
-function createMessageHTML(type, content, model, time) {
+function createMessageHTML(type, content, model, time, usage) {
   const avatar = type === 'bot' ? 'A' : 'U';
+  let usageHTML = '';
+  if (usage) {
+    const parts = [`${usage.totalTokens} tokens`];
+    if (usage.reasoningTokens > 0) {
+      parts.push(`reasoning: ${usage.reasoningTokens}`);
+    }
+    usageHTML = `<span class="meta-usage">${parts.join(' | ')}</span>`;
+  }
   return `
     <div class="message ${type}">
       <div class="message-avatar">${avatar}</div>
@@ -293,6 +326,7 @@ function createMessageHTML(type, content, model, time) {
         ${model ? `
         <div class="message-meta">
           <span class="meta-model">${model}</span>
+          ${usageHTML}
           <span class="meta-time">${time}</span>
         </div>` : ''}
       </div>
@@ -377,6 +411,7 @@ async function sendMessage(query) {
 
   try {
     let finalContent = '';
+    let lastUsage = null;
     const textEl = document.getElementById(`${streamId}-text`);
 
     // Helper: attempt streaming then non-streaming for a given model
@@ -391,6 +426,13 @@ async function sendMessage(query) {
               textEl.innerHTML = formatResponse(partialContent);
               scrollToBottom();
             }
+          },
+          (usage) => {
+            lastUsage = usage;
+            if (usage.reasoningTokens > 0) {
+              console.log('Reasoning tokens:', usage.reasoningTokens);
+            }
+            console.log('Usage:', usage);
           }
         );
       } catch (streamErr) {
@@ -427,10 +469,10 @@ async function sendMessage(query) {
       metaLabel += ' [fallback]';
     }
 
-    // Update the message with final content and meta
+    // Update the message with final content and meta + usage
     const streamMsg = document.getElementById(streamId);
     if (streamMsg) {
-      streamMsg.outerHTML = createMessageHTML('bot', formatResponse(finalContent), metaLabel, time);
+      streamMsg.outerHTML = createMessageHTML('bot', formatResponse(finalContent), metaLabel, time, lastUsage);
     }
 
     // Add assistant response to conversation history

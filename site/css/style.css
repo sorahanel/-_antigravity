@@ -1094,6 +1094,14 @@ body {
   border-radius: 4px;
 }
 
+.meta-usage {
+  font-size: 10px;
+  color: rgba(123,47,247,0.7);
+  padding: 1px 6px;
+  background: rgba(123,47,247,0.08);
+  border-radius: 4px;
+}
+
 .meta-time {
   font-size: 11px;
   color: rgba(255,255,255,0.3);
