@@ -1,6 +1,7 @@
 /* ========================================
    kt cloud AI Foundry - Agent A Prototype
    Multi-LLM: AI Foundry (Solar Pro2/100B) + OpenRouter (Solar Pro 3)
+   OpenRouter SDK-compatible pattern
    ======================================== */
 
 // ========================================
@@ -45,19 +46,13 @@ const MODEL_CONFIG = {
   },
   'solar-pro3': {
     provider: 'openrouter',
-    modelId: 'upstage/solar-pro-3',
+    modelId: 'upstage/solar-pro-3:free',
     displayName: 'Solar Pro 3',
     desc: 'OpenRouter (102B MoE)'
   },
-  'solar-pro3-free': {
-    provider: 'openrouter',
-    modelId: 'upstage/solar-pro-3:free',
-    displayName: 'Solar Pro 3 (Free)',
-    desc: 'OpenRouter Free Tier'
-  },
   'auto': {
     provider: 'openrouter',
-    modelId: 'upstage/solar-pro-3',
+    modelId: 'upstage/solar-pro-3:free',
     displayName: 'Solar Pro 3',
     desc: 'Auto - Best Available'
   }
@@ -91,7 +86,7 @@ const SYSTEM_PROMPT = `당신은 "Agent A"입니다. 기관 A(공공기관)의 A
 - 불확실한 정보는 명확히 표시
 - 개인정보나 민감한 정보 보호`;
 
-// Conversation history
+// Conversation history - preserves reasoning_details for multi-turn reasoning
 let conversationHistory = [
   { role: 'system', content: SYSTEM_PROMPT }
 ];
@@ -141,7 +136,7 @@ const suggestionsEl = document.getElementById('chatSuggestions');
 const modelSelect = document.getElementById('modelSelect');
 
 // ========================================
-// LLM API Call - Multi Provider
+// LLM API Call - OpenRouter SDK-compatible
 // ========================================
 
 function getProviderConfig(modelKey) {
@@ -150,19 +145,37 @@ function getProviderConfig(modelKey) {
   return { ...config, ...provider, providerKey: config.provider };
 }
 
+// Build request body matching OpenAI SDK extra_body pattern:
+// extra_body={"reasoning": {"enabled": True}}
+function buildRequestBody(cfg, messages, stream) {
+  const body = {
+    model: cfg.modelId,
+    messages: messages,
+    max_tokens: 2048,
+    temperature: 0.7,
+    top_p: 0.9
+  };
+
+  if (stream) {
+    body.stream = true;
+  }
+
+  // OpenRouter: enable reasoning (matches SDK extra_body)
+  if (cfg.providerKey === 'openrouter') {
+    body.reasoning = { enabled: true };
+  }
+
+  return body;
+}
+
+// Non-streaming call - captures reasoning_details from response
 async function callLLM(messages, modelKey) {
   const cfg = getProviderConfig(modelKey);
 
   const response = await fetch(cfg.endpoint, {
     method: 'POST',
     headers: cfg.headers(cfg.token),
-    body: JSON.stringify({
-      model: cfg.modelId,
-      messages: messages,
-      max_tokens: 2048,
-      temperature: 0.7,
-      top_p: 0.9
-    })
+    body: JSON.stringify(buildRequestBody(cfg, messages, false))
   });
 
   if (!response.ok) {
@@ -171,30 +184,25 @@ async function callLLM(messages, modelKey) {
   }
 
   const data = await response.json();
-  return data.choices[0].message.content;
+  const msg = data.choices[0].message;
+
+  // Return both content and reasoning_details for history preservation
+  return {
+    content: msg.content,
+    reasoning_details: msg.reasoning_details || null
+  };
 }
 
+// Streaming call - matches OpenRouter SDK streaming pattern:
+// chunk.choices[0]?.delta?.content for content
+// chunk.usage for final usage info
 async function callLLMStreaming(messages, modelKey, onChunk, onUsage) {
   const cfg = getProviderConfig(modelKey);
-
-  const body = {
-    model: cfg.modelId,
-    messages: messages,
-    max_tokens: 2048,
-    temperature: 0.7,
-    top_p: 0.9,
-    stream: true
-  };
-
-  // OpenRouter: enable reasoning token tracking
-  if (cfg.providerKey === 'openrouter') {
-    body.include_reasoning = true;
-  }
 
   const response = await fetch(cfg.endpoint, {
     method: 'POST',
     headers: cfg.headers(cfg.token),
-    body: JSON.stringify(body)
+    body: JSON.stringify(buildRequestBody(cfg, messages, true))
   });
 
   if (!response.ok) {
@@ -205,6 +213,7 @@ async function callLLMStreaming(messages, modelKey, onChunk, onUsage) {
   const reader = response.body.getReader();
   const decoder = new TextDecoder();
   let fullContent = '';
+  let fullReasoning = '';
   let buffer = '';
   let usageInfo = null;
 
@@ -226,14 +235,20 @@ async function callLLMStreaming(messages, modelKey, onChunk, onUsage) {
       try {
         const parsed = JSON.parse(data);
 
-        // Capture content delta (matches SDK: chunk.choices[0]?.delta?.content)
+        // Content delta (SDK: chunk.choices[0]?.delta?.content)
         const delta = parsed.choices?.[0]?.delta?.content;
         if (delta) {
           fullContent += delta;
           onChunk(fullContent);
         }
 
-        // Capture usage from final chunk (matches SDK: chunk.usage)
+        // Reasoning delta (SDK: chunk.choices[0]?.delta?.reasoning)
+        const reasoning = parsed.choices?.[0]?.delta?.reasoning;
+        if (reasoning) {
+          fullReasoning += reasoning;
+        }
+
+        // Usage from final chunk (SDK: chunk.usage / chunk.usage.reasoningTokens)
         if (parsed.usage) {
           usageInfo = {
             promptTokens: parsed.usage.prompt_tokens || 0,
@@ -241,6 +256,10 @@ async function callLLMStreaming(messages, modelKey, onChunk, onUsage) {
             totalTokens: parsed.usage.total_tokens || 0,
             reasoningTokens: parsed.usage.reasoning_tokens || parsed.usage.reasoningTokens || 0
           };
+          if (usageInfo.reasoningTokens > 0) {
+            console.log('Reasoning tokens:', usageInfo.reasoningTokens);
+          }
+          console.log('Usage:', usageInfo);
         }
       } catch (e) {
         // skip malformed chunks
@@ -248,12 +267,15 @@ async function callLLMStreaming(messages, modelKey, onChunk, onUsage) {
     }
   }
 
-  // Report usage info if callback provided
   if (usageInfo && onUsage) {
     onUsage(usageInfo);
   }
 
-  return fullContent;
+  // Return content + reasoning_details for conversation history
+  return {
+    content: fullContent,
+    reasoning_details: fullReasoning || null
+  };
 }
 
 // ========================================
@@ -286,29 +308,17 @@ function escapeHTML(str) {
 }
 
 function formatResponse(text) {
-  // Convert markdown-like formatting to HTML
   let html = escapeHTML(text);
 
-  // Bold: **text** or __text__
   html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/__(.*?)__/g, '<strong>$1</strong>');
-
-  // Headers: ### text
   html = html.replace(/^### (.+)$/gm, '<strong style="font-size:15px;display:block;margin:12px 0 6px;">$1</strong>');
   html = html.replace(/^## (.+)$/gm, '<strong style="font-size:16px;display:block;margin:14px 0 8px;">$1</strong>');
-
-  // Lists: - text
   html = html.replace(/^- (.+)$/gm, '&nbsp;&nbsp;&#8226; $1');
-
-  // Numbered lists: 1. text
   html = html.replace(/^(\d+)\. (.+)$/gm, '&nbsp;&nbsp;$1. $2');
-
-  // Simple table detection (| col | col |)
   html = html.replace(/\|(.+)\|/g, (match) => {
     return '<code style="font-size:12px;background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:3px;">' + match + '</code>';
   });
-
-  // Line breaks
   html = html.replace(/\n/g, '<br>');
 
   return html;
@@ -357,19 +367,6 @@ function createStreamingMessage() {
   return { id, html };
 }
 
-function createTypingIndicator() {
-  return `
-    <div class="message bot" id="typingMessage">
-      <div class="message-avatar">A</div>
-      <div class="message-content">
-        <div class="typing-indicator">
-          <span></span><span></span><span></span>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
 function scrollToBottom() {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -384,19 +381,15 @@ async function sendMessage(query) {
   if (!query.trim() || isProcessing) return;
   isProcessing = true;
 
-  // Hide suggestions after first message
   suggestionsEl.style.display = 'none';
 
-  // Add user message
   chatMessages.innerHTML += createMessageHTML('user', escapeHTML(query), null, null);
   scrollToBottom();
 
-  // Clear input
   chatInput.value = '';
   chatInput.style.height = 'auto';
   sendBtn.disabled = true;
 
-  // Add to conversation history
   conversationHistory.push({ role: 'user', content: query });
 
   const selectedModel = getModelKey();
@@ -404,23 +397,20 @@ async function sendMessage(query) {
   const modelDisplayName = `${cfg.displayName} (${cfg.providerKey === 'openrouter' ? 'OpenRouter' : 'AI Foundry'})`;
   const time = getCurrentTime();
 
-  // Create streaming message placeholder
   const { id: streamId, html: streamHTML } = createStreamingMessage();
   chatMessages.innerHTML += streamHTML;
   scrollToBottom();
 
-  // Determine actual model to use - prefer Solar Pro 3 via OpenRouter
   let actualModel = selectedModel;
-  let actualCfg = cfg;
   let actualDisplayName = modelDisplayName;
   let usedFallback = false;
 
   try {
-    let finalContent = '';
+    let result = null;
     let lastUsage = null;
     const textEl = document.getElementById(`${streamId}-text`);
 
-    // Helper: attempt streaming then non-streaming for a given model
+    // Try a model: streaming first, then non-streaming fallback
     async function tryModel(modelKey) {
       const tryCfg = getProviderConfig(modelKey);
       try {
@@ -433,13 +423,7 @@ async function sendMessage(query) {
               scrollToBottom();
             }
           },
-          (usage) => {
-            lastUsage = usage;
-            if (usage.reasoningTokens > 0) {
-              console.log('Reasoning tokens:', usage.reasoningTokens);
-            }
-            console.log('Usage:', usage);
-          }
+          (usage) => { lastUsage = usage; }
         );
       } catch (streamErr) {
         console.log(`Streaming failed for ${tryCfg.displayName}, trying non-streaming:`, streamErr.message);
@@ -450,55 +434,45 @@ async function sendMessage(query) {
       }
     }
 
-    // Fallback chain: selected → solar-pro3 (paid) → solar-pro3-free
-    const fallbackChain = ['solar-pro3', 'solar-pro3-free'];
+    // Fallback chain: selected → solar-pro3
     try {
-      finalContent = await tryModel(actualModel);
+      result = await tryModel(actualModel);
     } catch (primaryErr) {
-      console.log(`${cfg.displayName} failed:`, primaryErr.message);
-      let resolved = false;
-
-      for (const fb of fallbackChain) {
-        if (fb === actualModel) continue; // skip if same as primary
-        try {
-          console.log(`Trying fallback: ${fb}`);
-          if (textEl) {
-            textEl.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
-          }
-          actualModel = fb;
-          actualCfg = getProviderConfig(fb);
-          actualDisplayName = `${actualCfg.displayName} (OpenRouter)`;
-          usedFallback = true;
-          finalContent = await tryModel(fb);
-          resolved = true;
-          break;
-        } catch (fbErr) {
-          console.log(`Fallback ${fb} also failed:`, fbErr.message);
+      if (actualModel !== 'solar-pro3' && actualModel !== 'auto') {
+        console.log(`${cfg.displayName} failed, falling back to Solar Pro 3:`, primaryErr.message);
+        if (textEl) {
+          textEl.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
         }
+        actualModel = 'solar-pro3';
+        actualDisplayName = 'Solar Pro 3 (OpenRouter)';
+        usedFallback = true;
+        result = await tryModel('solar-pro3');
+      } else {
+        throw primaryErr;
       }
-
-      if (!resolved) throw primaryErr;
     }
 
-    // Build meta display
     let metaLabel = actualDisplayName;
     if (usedFallback) {
       metaLabel += ' [fallback]';
     }
 
-    // Update the message with final content and meta + usage
     const streamMsg = document.getElementById(streamId);
     if (streamMsg) {
-      streamMsg.outerHTML = createMessageHTML('bot', formatResponse(finalContent), metaLabel, time, lastUsage);
+      streamMsg.outerHTML = createMessageHTML('bot', formatResponse(result.content), metaLabel, time, lastUsage);
     }
 
-    // Add assistant response to conversation history
-    conversationHistory.push({ role: 'assistant', content: finalContent });
+    // Preserve assistant message with reasoning_details for multi-turn reasoning
+    // Matches SDK pattern: {"role": "assistant", "content": ..., "reasoning_details": ...}
+    const assistantMsg = { role: 'assistant', content: result.content };
+    if (result.reasoning_details) {
+      assistantMsg.reasoning_details = result.reasoning_details;
+    }
+    conversationHistory.push(assistantMsg);
 
   } catch (err) {
     console.error('LLM API Error:', err);
 
-    // Remove streaming message
     const streamMsg = document.getElementById(streamId);
     if (streamMsg) streamMsg.remove();
 
@@ -509,14 +483,13 @@ async function sendMessage(query) {
           <span class="rag-doc-title">${escapeHTML(err.message)}</span>
         </div>
       </div>
-      모든 LLM 엔드포인트 연결에 실패했습니다. 네트워크 상태를 확인하거나 잠시 후 다시 시도해 주세요.<br><br>
-      <strong>시도한 연결</strong><br>
-      &nbsp;&nbsp;&#8226; Primary: ${cfg.displayName} (${cfg.modelId})<br>
-      &nbsp;&nbsp;&#8226; Fallback: Solar Pro 3 (upstage/solar-pro-3)
+      LLM 엔드포인트 연결에 실패했습니다.<br><br>
+      <strong>연결 정보</strong><br>
+      &nbsp;&nbsp;&#8226; 모델: ${cfg.displayName} (${cfg.modelId})<br>
+      &nbsp;&nbsp;&#8226; Provider: ${cfg.name}
     `;
     chatMessages.innerHTML += createMessageHTML('bot', errorHTML, 'System', time);
 
-    // Remove the failed user message from history
     conversationHistory.pop();
   }
 
@@ -540,13 +513,11 @@ chatInput.addEventListener('keydown', (e) => {
   }
 });
 
-// Auto-resize textarea
 chatInput.addEventListener('input', () => {
   chatInput.style.height = 'auto';
   chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
 });
 
-// Suggestion buttons
 document.querySelectorAll('.suggestion').forEach(btn => {
   btn.addEventListener('click', () => {
     const query = btn.getAttribute('data-query');
@@ -555,9 +526,7 @@ document.querySelectorAll('.suggestion').forEach(btn => {
   });
 });
 
-// Clear chat
 clearBtn.addEventListener('click', () => {
-  // Reset conversation history
   conversationHistory = [
     { role: 'system', content: SYSTEM_PROMPT }
   ];
@@ -581,7 +550,6 @@ clearBtn.addEventListener('click', () => {
   sendBtn.disabled = false;
 });
 
-// Smooth scroll for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', function (e) {
     e.preventDefault();
