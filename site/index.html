@@ -532,8 +532,8 @@
           <div class="agent-settings">
             <h4>현재 설정</h4>
             <div class="setting-row">
-              <span>RAG 검색</span>
-              <span class="setting-value on">ON</span>
+              <span>LLM 연결</span>
+              <span class="setting-value on" id="apiStatus">LIVE</span>
             </div>
             <div class="setting-row">
               <span>모델 선택</span>
@@ -544,8 +544,18 @@
               </select>
             </div>
             <div class="setting-row">
-              <span>Guardrail</span>
+              <span>스트리밍</span>
               <span class="setting-value on">ON</span>
+            </div>
+            <div class="setting-row">
+              <span>대화 기록</span>
+              <span class="setting-value on">ON</span>
+            </div>
+          </div>
+          <div class="agent-settings" style="margin-top:16px;">
+            <h4>엔드포인트</h4>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);word-break:break-all;line-height:1.5;">
+              proxy.aifoundry.ktcloud.com
             </div>
           </div>
         </div>
@@ -600,7 +610,7 @@
               </button>
             </div>
             <div class="chat-disclaimer">
-              AI Foundry 프로토타입 | Solar Pro2 & Solar Open 100B | RAG Suite 연동
+              AI Foundry Live | proxy.aifoundry.ktcloud.com | Solar Pro2 & Solar Open 100B
             </div>
           </div>
         </div>
